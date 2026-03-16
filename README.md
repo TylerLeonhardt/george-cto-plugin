@@ -18,12 +18,13 @@ A production-tested agent identity (`agents/team-lead/`) that transforms any AI 
 
 ### 📋 Dispatch Skill
 
-A skill (`skills/dispatch-team-lead/`) that teaches other agents how to spawn Team Leads. Includes:
+A skill (`skills/dispatch-team-lead/`) that teaches other agents how to spawn Team Leads via [acpx](https://github.com/openclaw/acpx). Includes:
 
 - When to dispatch a Team Lead vs. handling it yourself
-- How to use `acpx` and `copilot` CLI to spawn them
+- How to dispatch via `acpx` with **any supported agent** (copilot, claude, codex, pi, gemini, cursor, etc.)
+- How to inject the Team Lead culture into the dispatch prompt
 - How to write good dispatch prompts (what + why, not step-by-step how)
-- Examples of effective and ineffective prompts
+- Session management for observing dispatched agents
 
 ### 🔒 Hooks Awareness
 
@@ -37,6 +38,23 @@ Rather than shipping global hooks (every project has its own linter, test runner
 Hooks belong in the project, not in a global plugin. This keeps quality enforcement tailored to each project's ecosystem.
 
 ## Quick Start
+
+### Prerequisites
+
+Install [acpx](https://github.com/openclaw/acpx), the universal session layer for dispatching agents:
+
+```bash
+npm install -g acpx
+```
+
+You'll also need at least one supported coding agent installed. acpx works with:
+- `copilot` — GitHub Copilot CLI
+- `claude` — Anthropic Claude Code
+- `codex` — OpenAI Codex CLI
+- `pi` — Inflection Pi
+- `gemini` — Google Gemini CLI
+- `cursor` — Cursor Agent
+- And others as acpx adds support — run `acpx --help` for the current list
 
 ### Install as a Claude Code Plugin (recommended)
 
@@ -81,24 +99,40 @@ cp -r george-cto-plugin/agents/team-lead your-project/.github/agents/
 cp -r george-cto-plugin/skills/dispatch-team-lead your-project/.github/skills/
 ```
 
-### Using with Copilot CLI
+### Dispatching a Team Lead with `acpx`
 
-Run a Team Lead directly:
+Use acpx to dispatch a Team Lead with any supported agent. The Team Lead culture from `agents/team-lead/team-lead.agent.md` gets prepended to your task prompt:
 
 ```bash
-copilot --plugin-dir george-cto-plugin/agents --agent team-lead/team-lead \
-  -p "Add authentication middleware with JWT support and write integration tests" \
-  --allow-all
+acpx <agent> -s <session-name> --approve-all --cwd <project-dir> exec "<culture + task prompt>"
 ```
 
-### Using with `acpx`
-
-Dispatch a Team Lead for autonomous execution:
+**Examples:**
 
 ```bash
+# With copilot
 acpx copilot -s add-auth --approve-all --cwd ./my-project \
-  exec "Add authentication middleware with JWT support and write integration tests"
+  exec "<full culture from team-lead.agent.md>
+
+George (the CTO) has given you this direction:
+Add authentication middleware with JWT support and write integration tests."
+
+# With claude
+acpx claude -s add-auth --approve-all --cwd ./my-project \
+  exec "<full culture from team-lead.agent.md>
+
+George (the CTO) has given you this direction:
+Add authentication middleware with JWT support and write integration tests."
+
+# With codex
+acpx codex -s add-auth --approve-all --cwd ./my-project \
+  exec "<full culture from team-lead.agent.md>
+
+George (the CTO) has given you this direction:
+Add authentication middleware with JWT support and write integration tests."
 ```
+
+The agent doesn't matter — the culture does. See `skills/dispatch-team-lead/SKILL.md` for the full dispatch guide, including how to inject the Team Lead culture into the prompt and manage sessions.
 
 ## The Development Culture
 

@@ -1,7 +1,8 @@
 ---
 name: Dispatch Team Lead
 description: >-
-  Teaches agents how to dispatch autonomous Team Lead agents for complex tasks.
+  Teaches agents how to dispatch autonomous Team Lead agents via acpx for complex tasks.
+  Supports any acpx agent (copilot, claude, codex, pi, gemini, cursor, etc.).
   Team Leads own execution end-to-end — they plan, implement, test, review, and
   ship with full development culture built in.
 ---
@@ -9,6 +10,25 @@ description: >-
 # Dispatch Team Lead
 
 Use this skill when you need to dispatch an autonomous Team Lead agent to handle a complex task. Team Leads are senior engineers who own execution end-to-end — you give them direction and context, they figure out the how.
+
+## Prerequisites
+
+Before dispatching, ensure the following are available:
+
+- **acpx** must be installed — this is the universal session layer for dispatching agents:
+  ```bash
+  npm install -g acpx
+  ```
+  See [acpx documentation](https://github.com/openclaw/acpx) for setup details.
+
+- **At least one supported coding agent** must be available on the system. acpx supports:
+  - `copilot` — GitHub Copilot CLI
+  - `claude` — Anthropic Claude Code
+  - `codex` — OpenAI Codex CLI
+  - `pi` — Inflection Pi
+  - `gemini` — Google Gemini CLI
+  - `cursor` — Cursor Agent
+  - And others as acpx adds support — run `acpx --help` to see the current list
 
 ## When to Dispatch a Team Lead
 
@@ -26,34 +46,94 @@ Don't dispatch a Team Lead for:
 
 ## How to Dispatch
 
-### Option 1: Using `acpx` (recommended for autonomous execution)
+The dispatch pattern uses acpx to spawn an agent with the Team Lead culture injected into the prompt:
 
 ```bash
-acpx copilot -s <session-name> --approve-all --cwd <project-dir> exec "<task description>"
+acpx <agent> -s <session-name> --approve-all --cwd <project-dir> exec "<culture-prompt + task>"
 ```
 
 **Parameters:**
-- `-s <session-name>` — a descriptive session name (e.g., `fix-auth-bug`, `add-user-api`)
+- `<agent>` — any acpx-supported agent: `copilot`, `claude`, `codex`, `pi`, `gemini`, `cursor`, etc.
+- `-s <session-name>` — a descriptive session name for observability (e.g., `fix-auth-bug`, `add-user-api`)
 - `--approve-all` — lets the Team Lead execute autonomously without approval prompts
 - `--cwd <project-dir>` — the project directory to work in
-- `exec "<task>"` — the task description in quotes
+- `exec "<prompt>"` — the combined culture + task prompt in quotes
 
-**Example:**
-```bash
-acpx copilot -s add-webhook-support --approve-all --cwd /home/user/my-api exec "Add webhook support for order events. Create POST /webhooks endpoint for registration, implement event dispatch on order create/update/delete, add retry logic with exponential backoff, and write integration tests."
+### Injecting the Team Lead Culture
+
+Since acpx dispatches a generic agent session, the Team Lead identity must be injected via the prompt itself. Read the culture from `agents/team-lead/team-lead.agent.md` and prepend it to the task.
+
+**Step 1:** Read the Team Lead agent file to get the culture prompt. The file is at `agents/team-lead/team-lead.agent.md` relative to where this plugin is installed. The content after the YAML frontmatter (`---`) is the culture prompt.
+
+**Step 2:** Combine the culture with your task into a single prompt string:
+
+```
+<culture from team-lead.agent.md>
+
+George (the CTO) has given you this direction:
+
+<your task description>
 ```
 
-### Option 2: Using `copilot` directly with the plugin
+**Step 3:** Dispatch with the combined prompt:
 
 ```bash
-copilot --plugin-dir <path-to-plugin>/agents --agent team-lead/team-lead -p "<task description>" --allow-all
+acpx <agent> -s <session-name> --approve-all --cwd <project-dir> exec "<combined prompt>"
 ```
 
-**Parameters:**
-- `--plugin-dir <path>` — path to the `agents/` directory in this plugin
-- `--agent team-lead/team-lead` — selects the Team Lead agent
-- `-p "<task>"` — the task prompt
-- `--allow-all` — grants full tool access
+### Examples
+
+With **copilot**:
+```bash
+acpx copilot -s add-webhook-support --approve-all --cwd /path/to/my-api \
+  exec "<full contents of team-lead.agent.md after the --- frontmatter>
+
+George (the CTO) has given you this direction:
+Add webhook support for order events. Create POST /webhooks endpoint for registration,
+implement event dispatch on order create/update/delete, add retry logic with exponential
+backoff, and write integration tests."
+```
+
+With **claude**:
+```bash
+acpx claude -s fix-auth-bug --approve-all --cwd /path/to/my-api \
+  exec "<full contents of team-lead.agent.md after the --- frontmatter>
+
+George (the CTO) has given you this direction:
+Fix the authentication bug where JWT tokens aren't being refreshed on 401 responses.
+Users are getting logged out mid-session. Add regression tests."
+```
+
+With **codex**:
+```bash
+acpx codex -s refactor-payments --approve-all --cwd /path/to/my-api \
+  exec "<full contents of team-lead.agent.md after the --- frontmatter>
+
+George (the CTO) has given you this direction:
+Refactor the payment module to support multiple providers. Currently hardcoded to Stripe.
+We need PayPal next month — build the abstraction now. Keep Stripe working."
+```
+
+> **Note:** The `<full contents of team-lead.agent.md ...>` placeholder represents the entire culture prompt from `agents/team-lead/team-lead.agent.md` — all sections including Your Role, Using Your Subagents, The VS Code Development Cycle, Core Values, Quality Gates, etc. The full file must be included, not just the first line.
+
+The agent doesn't matter — the culture does. Any acpx-supported agent will behave as a Team Lead when given the culture prompt.
+
+## Session Management
+
+acpx provides session management for observability into dispatched agents:
+
+```bash
+# List all sessions for an agent
+acpx <agent> sessions list
+
+# Check if a specific session is still running
+acpx <agent> status -s <session-name>
+
+# View the history of what happened in a session
+acpx <agent> sessions history <session-name>
+```
+
+Use descriptive session names (`fix-auth-bug`, `add-webhook-support`, `refactor-payments`) so you can easily identify what each dispatched Team Lead is working on.
 
 ## Writing Good Dispatch Prompts
 
@@ -92,7 +172,7 @@ Keep Stripe working — don't break existing tests."
 
 ## Development Culture
 
-Every Team Lead carries the development culture defined in `agents/team-lead/team-lead.agent.md`. The core values:
+The Team Lead culture is defined in `agents/team-lead/team-lead.agent.md`. When dispatching via acpx, this culture gets injected into the prompt (see [Injecting the Team Lead Culture](#injecting-the-team-lead-culture) above). The core values:
 
 - **Quality over everything** — clean, well-tested implementations over fast hacks
 - **The VS Code Development Cycle** — plan → implement with tests → holistic testing → clean up debt → report
