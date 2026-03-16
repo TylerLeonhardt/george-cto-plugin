@@ -1,0 +1,9 @@
+{
+  "name": "george-cto-plugin",
+  "version": "0.1.0",
+  "description": "CTO-in-a-plugin — dispatch autonomous Team Lead agents with development culture built in",
+  "author": "TylerLeonhardt",
+  "license": "MIT",
+  "homepage": "https://github.com/TylerLeonhardt/george-cto-plugin",
+  "repository": "https://github.com/TylerLeonhardt/george-cto-plugin"
+}

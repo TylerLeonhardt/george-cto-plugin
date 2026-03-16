@@ -1,0 +1,21 @@
+{
+	"version": 1,
+	"hooks": {
+		"postToolUse": [
+			{
+				"type": "command",
+				"bash": "hooks/post-tool-lint.sh",
+				"cwd": ".",
+				"timeoutSec": 30
+			}
+		],
+		"sessionEnd": [
+			{
+				"type": "command",
+				"bash": "hooks/session-end-tests.sh",
+				"cwd": ".",
+				"timeoutSec": 300
+			}
+		]
+	}
+}
