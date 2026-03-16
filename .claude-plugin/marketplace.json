@@ -1,0 +1,26 @@
+{
+	"name": "george-cto-tools",
+	"owner": {
+		"name": "TylerLeonhardt"
+	},
+	"metadata": {
+		"description": "George's CTO plugin marketplace — development culture for AI agents",
+		"version": "0.1.0"
+	},
+	"plugins": [
+		{
+			"name": "george-cto-plugin",
+			"source": "./",
+			"description": "CTO-in-a-plugin — dispatch autonomous Team Lead agents with development culture built in",
+			"version": "0.1.0",
+			"author": {
+				"name": "TylerLeonhardt"
+			},
+			"homepage": "https://github.com/TylerLeonhardt/george-cto-plugin",
+			"repository": "https://github.com/TylerLeonhardt/george-cto-plugin",
+			"license": "MIT",
+			"keywords": ["cto", "team-lead", "quality", "development-culture", "autonomous-agents"],
+			"category": "productivity"
+		}
+	]
+}

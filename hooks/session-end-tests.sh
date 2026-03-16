@@ -1,8 +1,12 @@
 #!/bin/bash
 # Session-end hook: Run the full test suite and typecheck as a final quality gate.
 # Detects the project's package manager and test runner automatically.
-# Input: JSON on stdin with timestamp, cwd, reason fields.
-# Output: Ignored by the hook system, but stderr is visible to the agent.
+#
+# Compatible with both Open Plugin and Claude Code hook formats:
+#   Open Plugin: { timestamp, cwd, reason }
+#   Claude Code: { session_id, cwd, hook_event_name: "SessionEnd", ... }
+#
+# Output: stderr is visible to the agent in both systems.
 #
 # Intentionally omitting -e so the script keeps running even if individual
 # commands fail — we want to report results from all quality gates, not bail early.
