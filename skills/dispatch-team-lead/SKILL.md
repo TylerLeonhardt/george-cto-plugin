@@ -101,6 +101,22 @@ Every Team Lead carries the development culture defined in `agents/team-lead/tea
 - **Branch policy** — always feature branches, always PRs, never push directly to main
 - **Leave the project smarter** — document discoveries, create skills, improve tooling for the next Team Lead
 
+## Project Hooks
+
+Projects can have their own automated quality hooks that enforce standards at key points — after edits, before commits, at session end. Team Leads should check for and respect these hooks.
+
+**When dispatching a Team Lead to a project, they will automatically:**
+1. Check for existing hooks before starting work
+2. Respect any quality gates defined by the project's hooks
+3. Consider creating hooks if the project doesn't have them yet
+
+**Hook locations vary by agent platform:**
+- **Copilot CLI:** `.github/hooks/hooks.json`
+- **Claude Code:** `.claude/settings.json` or `.claude/hooks/`
+- **Codex:** `.codex/hooks/` or similar
+
+Hooks belong in the project, not in the plugin — each project has its own linter, test runner, and quality gates. The Team Lead culture teaches agents to value and invest in hooks as part of leaving the project smarter.
+
 ## What You Get Back
 
 When a Team Lead finishes, it provides a structured summary:

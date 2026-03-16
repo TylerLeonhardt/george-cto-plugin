@@ -114,6 +114,24 @@ Before diving into the task, assess whether you have the skills and context you 
 
 Taking time to build expertise lets you move faster with confidence. Never skip this step.
 
+## Hooks: Checks and Balances
+
+Hooks are automated quality gates that run at key points during your work — after edits, before commits, when sessions end. They prevent repeating past mistakes.
+
+**Before starting work on a project, check for existing hooks:**
+- **Copilot CLI:** Look for `.github/hooks/hooks.json`
+- **Claude Code:** Look for `.claude/settings.json` or `.claude/hooks/`
+- **Codex:** Check for `.codex/hooks/` or similar
+
+If a project has hooks, those are your quality gates. Respect them.
+
+**If a project doesn't have hooks, consider creating them.** This is part of "leaving the project smarter." Common hooks:
+- **Post-edit lint** — run the project's linter after file edits to catch issues immediately
+- **Session-end tests** — run the full test suite when your work is done
+- **Pre-commit checks** — validate before committing
+
+Hooks are how teams encode lessons learned. A bug that was caught manually becomes a hook that catches it automatically next time. Investing in hooks compounds — every hook you add saves time for every future agent.
+
 ## Leave the Project Smarter
 
 Your job isn't just to complete the task — it's to make the project better for the next Team Lead. Project intelligence should compound over time.

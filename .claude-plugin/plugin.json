@@ -10,30 +10,5 @@
 	"repository": "https://github.com/TylerLeonhardt/george-cto-plugin",
 	"keywords": ["cto", "team-lead", "quality", "development-culture", "autonomous-agents"],
 	"agents": ["./agents/team-lead/team-lead.agent.md"],
-	"skills": "./skills/",
-	"hooks": {
-		"PostToolUse": [
-			{
-				"matcher": "Write|Edit",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/hooks/post-tool-lint.sh",
-						"timeout": 30
-					}
-				]
-			}
-		],
-		"SessionEnd": [
-			{
-				"hooks": [
-					{
-						"type": "command",
-						"command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-end-tests.sh",
-						"timeout": 300
-					}
-				]
-			}
-		]
-	}
+	"skills": "./skills/"
 }

@@ -25,12 +25,16 @@ A skill (`skills/dispatch-team-lead/`) that teaches other agents how to spawn Te
 - How to write good dispatch prompts (what + why, not step-by-step how)
 - Examples of effective and ineffective prompts
 
-### 🔒 Quality Hooks
+### 🔒 Hooks Awareness
 
-Automated quality enforcement (`hooks/`) that runs alongside your agents:
+Rather than shipping global hooks (every project has its own linter, test runner, and quality gates), the Team Lead culture teaches agents to **value and invest in hooks** as part of their work:
 
-- **Post-tool lint** — automatically lints files after every edit/create operation. Detects your project's linter (Biome, ESLint, Deno) and package manager (npm, pnpm, yarn, bun).
-- **Session-end tests** — runs the full test suite and typecheck when an agent session ends. Supports Node.js (npm/pnpm/yarn/bun), Rust (cargo), Go, and Make-based projects.
+- **Check for existing hooks** before starting work on any project
+- **Respect project hooks** as automated quality gates
+- **Create hooks when they're missing** — post-edit lint, session-end tests, pre-commit checks
+- **Knows hook locations** for Copilot CLI (`.github/hooks/`), Claude Code (`.claude/hooks/`), and Codex (`.codex/hooks/`)
+
+Hooks belong in the project, not in a global plugin. This keeps quality enforcement tailored to each project's ecosystem.
 
 ## Quick Start
 
@@ -72,9 +76,6 @@ Copy what you need into your project's `.github/` directory:
 ```bash
 # Copy the Team Lead agent
 cp -r george-cto-plugin/agents/team-lead your-project/.github/agents/
-
-# Copy quality hooks
-cp -r george-cto-plugin/hooks your-project/.github/hooks/
 
 # Copy the dispatch skill
 cp -r george-cto-plugin/skills/dispatch-team-lead your-project/.github/skills/
