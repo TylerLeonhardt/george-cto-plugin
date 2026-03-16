@@ -34,6 +34,31 @@ Automated quality enforcement (`hooks/`) that runs alongside your agents:
 
 ## Quick Start
 
+### Install as a Claude Code Plugin (recommended)
+
+Install directly from GitHub:
+
+```
+/plugin install george-cto-plugin@george-cto-tools
+```
+
+Or add the marketplace first, then install:
+
+```
+/plugin marketplace add TylerLeonhardt/george-cto-plugin
+/plugin install george-cto-plugin@george-cto-tools
+```
+
+Test locally during development:
+
+```bash
+claude --plugin-dir ./george-cto-plugin
+```
+
+### Install as an Open Plugin
+
+If your tool supports the Open Plugin format (`.plugin/plugin.json`), the plugin is also compatible with that system.
+
 ### Manual Installation
 
 Clone this repo and reference it from your project:

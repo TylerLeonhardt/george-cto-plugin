@@ -1,21 +1,33 @@
 #!/bin/bash
 # Post-tool-use hook: Run the project's linter on files changed by edit/create tools.
 # Detects the project's linter automatically (biome, eslint, etc.).
-# Input: JSON on stdin with toolName, toolArgs, toolResult fields.
-# Output: Ignored by the hook system, but stderr is visible to the agent.
+#
+# Compatible with both Open Plugin and Claude Code hook formats:
+#   Open Plugin: { toolName, toolArgs: { path }, toolResult }
+#   Claude Code: { tool_name, tool_input: { file_path }, tool_response }
+#
+# Output: stderr is visible to the agent in both systems.
 set -uo pipefail
 
 INPUT=$(cat)
 
-TOOL_NAME=$(echo "$INPUT" | jq -r '.toolName' 2>/dev/null || echo "")
+# Read tool name from either format (Claude Code: tool_name, Open Plugin: toolName)
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // .toolName // ""' 2>/dev/null || echo "")
 
-# Only lint after edit or create operations
-if [ "$TOOL_NAME" != "edit" ] && [ "$TOOL_NAME" != "create" ]; then
-	exit 0
-fi
+# Only lint after edit/create (Open Plugin) or Edit/Write (Claude Code) operations
+case "$TOOL_NAME" in
+	edit | create | Edit | Write | write) ;;
+	*) exit 0 ;;
+esac
 
-# Extract the file path from toolArgs.
-FILE_PATH=$(echo "$INPUT" | jq -r '.toolArgs' 2>/dev/null | jq -r '.path // empty' 2>/dev/null || echo "")
+# Extract file path from either format:
+#   Claude Code: tool_input.file_path
+#   Open Plugin: toolArgs (string) parsed as JSON with .path
+FILE_PATH=$(echo "$INPUT" | jq -r '
+	.tool_input.file_path //
+	((.toolArgs | if type == "string" then fromjson else . end) | .path) //
+	empty
+' 2>/dev/null || echo "")
 
 if [ -z "$FILE_PATH" ]; then
 	exit 0
