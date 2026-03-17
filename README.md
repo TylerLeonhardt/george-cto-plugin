@@ -6,6 +6,15 @@ AI coding agents are powerful, but without leadership they produce inconsistent 
 
 ## What's Inside
 
+### Structure
+
+```
+skills/dispatch-team-lead/
+├── SKILL.md                           # Dispatch mechanics + gotchas
+├── references/team-lead-culture.md    # Full Team Lead culture (loaded on dispatch)
+└── scripts/dispatch.sh               # Helper script for reliable culture injection
+```
+
 ### 🧑‍💼 George — the CTO Agent
 
 A custom agent (`agents/george/`) that acts as your CTO. George:
@@ -18,7 +27,7 @@ A custom agent (`agents/george/`) that acts as your CTO. George:
 
 ### 📋 Dispatch Team Lead Skill
 
-A skill (`skills/dispatch-team-lead/`) that George uses to spawn autonomous Team Lead agents via [acpx](https://github.com/openclaw/acpx). The full Team Lead culture is embedded in the skill — no external files needed. Includes:
+A skill (`skills/dispatch-team-lead/`) that George uses to spawn autonomous Team Lead agents via [acpx](https://github.com/openclaw/acpx). The Team Lead culture lives in `references/team-lead-culture.md` and is loaded via progressive disclosure at dispatch time. Includes:
 
 - The complete Team Lead identity and development culture
 - When to dispatch a Team Lead vs. handling it yourself
@@ -33,7 +42,7 @@ CEO (the user)
   ↓ gives direction
 George (custom agent — agents/george/george.agent.md)
   ↓ uses the skill to dispatch
-Team Lead (culture embedded in skill — skills/dispatch-team-lead/SKILL.md)
+Team Lead (culture in references/, loaded on demand via skills/dispatch-team-lead/)
   ↓ spawned via acpx, carries the culture
 The work gets done
 ```
