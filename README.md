@@ -2,29 +2,43 @@
 
 **Your AI agents need a CTO.**
 
-AI coding agents are powerful, but without leadership they produce inconsistent work — skipping tests, pushing to main, hardcoding assumptions, and leaving debt everywhere. This plugin gives your agents a development culture.
+AI coding agents are powerful, but without leadership they produce inconsistent work — skipping tests, pushing to main, hardcoding assumptions, and leaving debt everywhere. This plugin gives your agents a CTO and a development culture.
 
 ## What's Inside
 
-### 🧑‍💼 Team Lead Agent
+### 🧑‍💼 George — the CTO Agent
 
-A production-tested agent identity (`agents/team-lead/`) that transforms any AI coding agent into a senior Team Lead who:
+A custom agent (`agents/george/`) that acts as your CTO. George:
 
-- **Owns execution end-to-end** — plans the approach, implements with tests, reviews their own work, and ships clean code
-- **Manages subagents as their engineering team** — delegates research, implementation, and review to specialized agents
-- **Follows the VS Code Development Cycle** — plan → implement with tests → holistic testing → clean up debt → report back
-- **Enforces quality gates** — tests pass, lint passes, CI is green before merging. No exceptions.
-- **Carries product thinking** — doesn't just make code work, thinks about naming, architecture, scalability, and the next developer who reads it
+- **Reports to the CEO (the user)** — you set vision, George executes
+- **Manages a team of Team Lead agents** — delegates complex work, doesn't code directly
+- **Knows when to dispatch vs handle directly** — complex tasks get a Team Lead, casual questions George handles himself
+- **Reports results honestly** — interprets Team Lead output, flags issues, suggests next steps
+- **Carries the "quality over everything" motto** — never rushes past quality gates
 
-### 📋 Dispatch Skill
+### 📋 Dispatch Team Lead Skill
 
-A skill (`skills/dispatch-team-lead/`) that teaches other agents how to spawn Team Leads via [acpx](https://github.com/openclaw/acpx). Includes:
+A skill (`skills/dispatch-team-lead/`) that George uses to spawn autonomous Team Lead agents via [acpx](https://github.com/openclaw/acpx). The full Team Lead culture is embedded in the skill — no external files needed. Includes:
 
+- The complete Team Lead identity and development culture
 - When to dispatch a Team Lead vs. handling it yourself
 - How to dispatch via `acpx` with **any supported agent** (copilot, claude, codex, pi, gemini, cursor, etc.)
-- How to inject the Team Lead culture into the dispatch prompt
 - How to write good dispatch prompts (what + why, not step-by-step how)
 - Session management for observing dispatched agents
+
+### The Mental Model
+
+```
+CEO (the user)
+  ↓ gives direction
+George (custom agent — agents/george/george.agent.md)
+  ↓ uses the skill to dispatch
+Team Lead (culture embedded in skill — skills/dispatch-team-lead/SKILL.md)
+  ↓ spawned via acpx, carries the culture
+The work gets done
+```
+
+George decides. The skill executes. The Team Lead culture travels with the dispatch.
 
 ### 🔒 Hooks Awareness
 
@@ -92,47 +106,33 @@ git clone https://github.com/TylerLeonhardt/george-cto-plugin.git
 Copy what you need into your project's `.github/` directory:
 
 ```bash
-# Copy the Team Lead agent
-cp -r george-cto-plugin/agents/team-lead your-project/.github/agents/
+# Copy the George agent
+cp -r george-cto-plugin/agents/george your-project/.github/agents/
 
 # Copy the dispatch skill
 cp -r george-cto-plugin/skills/dispatch-team-lead your-project/.github/skills/
 ```
 
-### Dispatching a Team Lead with `acpx`
+### How It Works
 
-Use acpx to dispatch a Team Lead with any supported agent. The Team Lead culture from `agents/team-lead/team-lead.agent.md` gets prepended to your task prompt:
+George acts as your CTO. When you give him a complex task, he uses the `dispatch-team-lead` skill to spawn an autonomous Team Lead agent via acpx. The skill injects the full Team Lead culture into the dispatch prompt — so the spawned agent carries your development values.
 
 ```bash
+# George dispatches with any supported agent
 acpx <agent> -s <session-name> --approve-all --cwd <project-dir> exec "<culture + task prompt>"
 ```
 
-**Examples:**
+**Example:**
 
 ```bash
-# With copilot
 acpx copilot -s add-auth --approve-all --cwd ./my-project \
-  exec "<full culture from team-lead.agent.md>
-
-George (the CTO) has given you this direction:
-Add authentication middleware with JWT support and write integration tests."
-
-# With claude
-acpx claude -s add-auth --approve-all --cwd ./my-project \
-  exec "<full culture from team-lead.agent.md>
-
-George (the CTO) has given you this direction:
-Add authentication middleware with JWT support and write integration tests."
-
-# With codex
-acpx codex -s add-auth --approve-all --cwd ./my-project \
-  exec "<full culture from team-lead.agent.md>
+  exec "You are a Team Lead. Our motto is **quality over everything.** ...
 
 George (the CTO) has given you this direction:
 Add authentication middleware with JWT support and write integration tests."
 ```
 
-The agent doesn't matter — the culture does. See `skills/dispatch-team-lead/SKILL.md` for the full dispatch guide, including how to inject the Team Lead culture into the prompt and manage sessions.
+The agent doesn't matter — the culture does. See `skills/dispatch-team-lead/SKILL.md` for the full dispatch guide.
 
 ## The Development Culture
 
@@ -152,7 +152,7 @@ This plugin encodes a specific philosophy about how AI agents should work:
 
 Without a development culture, AI agents are brilliant interns — fast and capable, but they'll cut corners unless someone sets expectations. This plugin is that someone.
 
-With it, every agent you dispatch:
+With it, every Team Lead you dispatch:
 - Writes tests alongside implementation
 - Reviews their own code before committing
 - Uses feature branches and opens PRs

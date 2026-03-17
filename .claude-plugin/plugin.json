@@ -1,7 +1,7 @@
 {
 	"name": "george-cto-plugin",
 	"version": "0.1.0",
-	"description": "CTO-in-a-plugin — dispatch autonomous Team Lead agents with development culture built in",
+	"description": "CTO-in-a-plugin — George as your CTO agent with Team Lead dispatch culture built in",
 	"author": {
 		"name": "TylerLeonhardt"
 	},
@@ -9,6 +9,6 @@
 	"homepage": "https://github.com/TylerLeonhardt/george-cto-plugin",
 	"repository": "https://github.com/TylerLeonhardt/george-cto-plugin",
 	"keywords": ["cto", "team-lead", "quality", "development-culture", "autonomous-agents"],
-	"agents": ["./agents/team-lead/team-lead.agent.md"],
+	"agents": ["./agents/george/george.agent.md"],
 	"skills": "./skills/"
 }
