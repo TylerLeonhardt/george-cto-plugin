@@ -27,13 +27,14 @@ A custom agent (`agents/george/`) that acts as your CTO. George:
 
 ### 📋 Dispatch Team Lead Skill
 
-A skill (`skills/dispatch-team-lead/`) that George uses to spawn autonomous Team Lead agents via [acpx](https://github.com/openclaw/acpx). The Team Lead culture lives in `references/team-lead-culture.md` and is loaded via progressive disclosure at dispatch time. Includes:
+A skill (`skills/dispatch-team-lead/`) that George uses to spawn autonomous Team Lead agents via [ahpx](https://github.com/nicholasgriffintn/ahpx) (Agent Host Protocol). The Team Lead culture lives in `references/team-lead-culture.md` and is loaded via progressive disclosure at dispatch time. Includes:
 
 - The complete Team Lead identity and development culture
 - When to dispatch a Team Lead vs. handling it yourself
-- How to dispatch via `acpx` with **any supported agent** (copilot, claude, codex, pi, gemini, cursor, etc.)
+- How to dispatch via `ahpx exec` to AHP servers with multi-host fleet support
 - How to write good dispatch prompts (what + why, not step-by-step how)
 - Session management for observing dispatched agents
+- Remote filesystem discovery via `ahpx browse`
 
 ### The Mental Model
 
@@ -43,7 +44,7 @@ CEO (the user)
 George (custom agent — agents/george/george.agent.md)
   ↓ uses the skill to dispatch
 Team Lead (culture in references/, loaded on demand via skills/dispatch-team-lead/)
-  ↓ spawned via acpx, carries the culture
+  ↓ dispatched to AHP servers via ahpx, carries the culture
 The work gets done
 ```
 
@@ -64,20 +65,13 @@ Hooks belong in the project, not in a global plugin. This keeps quality enforcem
 
 ### Prerequisites
 
-Install [acpx](https://github.com/openclaw/acpx), the universal session layer for dispatching agents:
+Install [ahpx](https://github.com/nicholasgriffintn/ahpx), the Agent Host Protocol CLI for dispatching agents:
 
 ```bash
-npm install -g acpx
+npm install -g ahpx
 ```
 
-You'll also need at least one supported coding agent installed. acpx works with:
-- `copilot` — GitHub Copilot CLI
-- `claude` — Anthropic Claude Code
-- `codex` — OpenAI Codex CLI
-- `pi` — Inflection Pi
-- `gemini` — Google Gemini CLI
-- `cursor` — Cursor Agent
-- And others as acpx adds support — run `acpx --help` for the current list
+You'll also need at least one AHP server running. ahpx discovers servers from `~/.ahpx/connections.json`. Run `ahpx status` to check available servers.
 
 ### Install as a Claude Code Plugin (recommended)
 
@@ -124,24 +118,27 @@ cp -r george-cto-plugin/skills/dispatch-team-lead your-project/.github/skills/
 
 ### How It Works
 
-George acts as your CTO. When you give him a complex task, he uses the `dispatch-team-lead` skill to spawn an autonomous Team Lead agent via acpx. The skill injects the full Team Lead culture into the dispatch prompt — so the spawned agent carries your development values.
+George acts as your CTO. When you give him a complex task, he uses the dispatch skill to spawn an autonomous Team Lead agent on an AHP server via ahpx. The skill injects the full Team Lead culture into the dispatch prompt — so the spawned agent carries your development values.
 
 ```bash
-# George dispatches with any supported agent
-acpx <agent> -s <session-name> --approve-all --cwd <project-dir> exec "<culture + task prompt>"
+# George dispatches to an AHP server
+ahpx exec -s <session-name> --cwd <project-dir> "<culture + task prompt>"
+
+# Or target a specific server in your fleet
+ahpx exec -s <session-name> --server <server-name> --cwd <project-dir> "<culture + task prompt>"
 ```
 
 **Example:**
 
 ```bash
-acpx copilot -s add-auth --approve-all --cwd ./my-project \
-  exec "You are a Team Lead. Our motto is **quality over everything.** ...
+ahpx exec -s add-auth --cwd ./my-project \
+  "You are a Team Lead. Our motto is **quality over everything.** ...
 
 George (the CTO) has given you this direction:
 Add authentication middleware with JWT support and write integration tests."
 ```
 
-The agent doesn't matter — the culture does. See `skills/dispatch-team-lead/SKILL.md` for the full dispatch guide.
+The server doesn't matter — the culture does. See `skills/dispatch-team-lead/SKILL.md` for the full dispatch guide.
 
 ## The Development Culture
 
