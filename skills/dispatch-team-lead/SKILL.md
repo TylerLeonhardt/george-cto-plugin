@@ -1,10 +1,10 @@
 ---
 name: Dispatch Team Lead
 description: >-
-  Dispatches autonomous Team Lead agents via acpx for complex tasks.
-  Supports any acpx agent (copilot, claude, codex, pi, gemini, cursor, etc.).
-  The Team Lead culture lives in references/team-lead-culture.md and is
-  injected into every dispatch — Team Leads own execution end-to-end.
+  Dispatches autonomous Team Lead agents to AHP servers via ahpx.
+  Supports multi-host fleet dispatch with server targeting, session management,
+  and remote filesystem browsing. The Team Lead culture lives in
+  references/team-lead-culture.md and is injected into every dispatch.
 ---
 
 # Dispatch Team Lead
@@ -15,20 +15,13 @@ Use this skill when you need to dispatch an autonomous Team Lead agent to handle
 
 Before dispatching, ensure the following are available:
 
-- **acpx** must be installed — this is the universal session layer for dispatching agents:
+- **ahpx** must be installed — this is the Agent Host Protocol CLI for dispatching agents to AHP servers:
   ```bash
-  npm install -g acpx
+  npm install -g ahpx
   ```
-  See [acpx documentation](https://github.com/openclaw/acpx) for setup details.
+  See [ahpx documentation](https://github.com/nicholasgriffintn/ahpx) for setup details.
 
-- **At least one supported coding agent** must be available on the system. acpx supports:
-  - `copilot` — GitHub Copilot CLI
-  - `claude` — Anthropic Claude Code
-  - `codex` — OpenAI Codex CLI
-  - `pi` — Inflection Pi
-  - `gemini` — Google Gemini CLI
-  - `cursor` — Cursor Agent
-  - And others as acpx adds support — run `acpx --help` to see the current list
+- **At least one AHP server** must be running and discoverable. ahpx discovers servers from `~/.ahpx/connections.json`. Run `ahpx status` to check available servers.
 
 ## When to Dispatch a Team Lead
 
@@ -46,18 +39,17 @@ Don't dispatch a Team Lead for:
 
 ## How to Dispatch
 
-The dispatch pattern uses acpx to spawn an agent with the Team Lead culture injected into the prompt:
+The dispatch pattern uses `ahpx exec` to create a session on an AHP server with the Team Lead culture injected into the prompt:
 
 ```bash
-acpx <agent> -s <session-name> --approve-all --cwd <project-dir> exec "<culture-prompt + task>"
+ahpx exec -s <session-name> --cwd <project-dir> "<culture-prompt + task>"
 ```
 
 **Parameters:**
-- `<agent>` — any acpx-supported agent: `copilot`, `claude`, `codex`, `pi`, `gemini`, `cursor`, etc.
 - `-s <session-name>` — a descriptive session name for observability (e.g., `fix-auth-bug`, `add-user-api`)
-- `--approve-all` — lets the Team Lead execute autonomously without approval prompts
-- `--cwd <project-dir>` — the project directory to work in
-- `exec "<prompt>"` — the combined culture + task prompt in quotes
+- `--cwd <project-dir>` — the project directory to work in. **REQUIRED when targeting remote servers** — the agent needs to know where to operate.
+- `--server <server-name>` — target a specific AHP server in your multi-host fleet. Omit to let ahpx auto-select.
+- `"<prompt>"` — the combined culture + task prompt
 
 ### Building the Dispatch Prompt
 
@@ -80,7 +72,7 @@ George (the CTO) has given you this direction:
 **Step 3:** Dispatch with the combined prompt:
 
 ```bash
-acpx <agent> -s <session-name> --approve-all --cwd <project-dir> exec "<combined prompt>"
+ahpx exec -s <session-name> --cwd <project-dir> "<combined prompt>"
 ```
 
 ### Using the dispatch script
@@ -88,52 +80,66 @@ acpx <agent> -s <session-name> --approve-all --cwd <project-dir> exec "<combined
 For reliable culture injection, use the bundled dispatch script:
 
 ```bash
-./scripts/dispatch.sh <agent> <session-name> <project-dir> "<task>"
+./scripts/dispatch.sh <session-name> <project-dir> "<task>"
 ```
 
-This automatically reads the Team Lead culture, verifies acpx is installed, and combines everything into the dispatch prompt.
+This automatically reads the Team Lead culture, verifies ahpx is installed, and combines everything into the dispatch prompt.
 
 ### Examples
 
-With **copilot**:
+Dispatch to the default server:
 ```bash
-acpx copilot -s add-webhook-support --approve-all --cwd /path/to/my-api \
-  exec "<full culture> ... George (the CTO) has given you this direction:
+ahpx exec -s add-webhook-support --cwd /path/to/my-api \
+  "<full culture> ... George (the CTO) has given you this direction:
 Add webhook support for order events. Create POST /webhooks endpoint..."
 ```
 
-With **claude**:
+Dispatch to a specific server in your fleet:
 ```bash
-acpx claude -s fix-auth-bug --approve-all --cwd /path/to/my-api \
-  exec "<full culture> ... George (the CTO) has given you this direction:
+ahpx exec -s fix-auth-bug --server dev-server-2 --cwd /path/to/my-api \
+  "<full culture> ... George (the CTO) has given you this direction:
 Fix the authentication bug where JWT tokens aren't being refreshed..."
 ```
 
 > **Note:** The `<full culture>` in the examples represents the FULL contents of `references/team-lead-culture.md`. Never truncate it.
 
-The agent doesn't matter — the culture does. Any acpx-supported agent will behave as a Team Lead when given the culture prompt.
+The server doesn't matter — the culture does. Any AHP server will produce a Team Lead when given the culture prompt.
+
+## Remote Filesystem Discovery
+
+When dispatching to remote AHP servers, you may not know the exact filesystem paths. Use `ahpx browse` to discover project locations:
+
+```bash
+# Browse the filesystem on a specific server
+ahpx browse --server <server-name>
+
+# Browse a specific path
+ahpx browse --server <server-name> /home/projects/
+```
+
+This is especially useful when managing a multi-host fleet where projects live on different machines.
 
 ## Gotchas
 
 - **Never truncate the Team Lead culture.** Agents will try to summarize it to save tokens — include ALL of `references/team-lead-culture.md` in the dispatch prompt. Truncated culture produces agents that skip quality gates.
-- **`--approve-all` is required.** Without it, the dispatched agent stalls waiting for approval prompts that nobody will answer. The session will hang until timeout.
-- **Verify acpx is installed before first dispatch.** Run `acpx --version`. If it fails, install with `npm install -g acpx`. A missing acpx produces cryptic "command not found" errors.
+- **`--cwd` is REQUIRED for remote servers.** Without it, the agent won't know where to operate. Always specify the project directory when dispatching to remote AHP servers.
+- **Verify ahpx is installed before first dispatch.** Run `ahpx --version`. If it fails, install with `npm install -g ahpx`. A missing ahpx produces cryptic "command not found" errors.
 - **Don't dispatch for trivial tasks.** Single-file edits, quick lookups, simple questions — handle these yourself. Team Leads will over-engineer simple tasks because the culture tells them to invest in expertise and create PRs.
-- **Session names must be unique.** If you reuse a session name, acpx may resume an old session instead of starting fresh. Use descriptive, task-specific names like `fix-auth-bug` or `add-dark-mode`.
+- **Session names must be unique.** If you reuse a session name, ahpx may resume an old session instead of starting fresh. Use descriptive, task-specific names like `fix-auth-bug` or `add-dark-mode`.
 
 ## Session Management
 
-acpx provides session management for observability into dispatched agents:
+ahpx provides session management for observability into dispatched agents:
 
 ```bash
-# List all sessions for an agent
-acpx <agent> sessions list
+# List all sessions
+ahpx sessions list
 
-# Check if a specific session is still running
-acpx <agent> status -s <session-name>
+# Check the status of a specific session
+ahpx sessions status -s <session-name>
 
 # View the history of what happened in a session
-acpx <agent> sessions history <session-name>
+ahpx sessions history <session-name>
 ```
 
 Use descriptive session names (`fix-auth-bug`, `add-webhook-support`, `refactor-payments`) so you can easily identify what each dispatched Team Lead is working on.
