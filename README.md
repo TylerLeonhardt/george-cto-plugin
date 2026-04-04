@@ -71,7 +71,7 @@ Install [ahpx](https://github.com/TylerLeonhardt/ahpx), the Agent Host Protocol 
 npm install -g @tylerl0706/ahpx
 ```
 
-You'll also need at least one AHP server running. Configure servers with `ahpx server add` (stored in `~/.ahpx/config.json`). Run `ahpx server status` to check available servers.
+You'll also need at least one AHP server running. Configure servers with `ahpx server add`. Run `ahpx server status` to check available servers.
 
 ### Install as a Claude Code Plugin (recommended)
 

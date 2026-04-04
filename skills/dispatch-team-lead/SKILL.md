@@ -21,7 +21,7 @@ Before dispatching, ensure the following are available:
   ```
   See [ahpx documentation](https://github.com/TylerLeonhardt/ahpx) for setup details.
 
-- **At least one AHP server** must be running and discoverable. Configure servers with `ahpx server add` (stored in `~/.ahpx/config.json`). Run `ahpx server status` to check available servers.
+- **At least one AHP server** must be running and discoverable. Configure servers with `ahpx server add`. Run `ahpx server status` to check available servers.
 
 ## When to Dispatch a Team Lead
 
