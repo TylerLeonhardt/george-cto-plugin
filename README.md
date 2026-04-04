@@ -27,11 +27,11 @@ A custom agent (`agents/george/`) that acts as your CTO. George:
 
 ### 📋 Dispatch Team Lead Skill
 
-A skill (`skills/dispatch-team-lead/`) that George uses to spawn autonomous Team Lead agents via [ahpx](https://github.com/nicholasgriffintn/ahpx) (Agent Host Protocol). The Team Lead culture lives in `references/team-lead-culture.md` and is loaded via progressive disclosure at dispatch time. Includes:
+A skill (`skills/dispatch-team-lead/`) that George uses to spawn autonomous Team Lead agents via [ahpx](https://github.com/TylerLeonhardt/ahpx) (Agent Host Protocol). The Team Lead culture lives in `references/team-lead-culture.md` and is loaded via progressive disclosure at dispatch time. Includes:
 
 - The complete Team Lead identity and development culture
 - When to dispatch a Team Lead vs. handling it yourself
-- How to dispatch via `ahpx exec` to AHP servers with multi-host fleet support
+- How to dispatch via `ahpx prompt` to AHP servers with multi-host fleet support
 - How to write good dispatch prompts (what + why, not step-by-step how)
 - Session management for observing dispatched agents
 - Remote filesystem discovery via `ahpx browse`
@@ -65,13 +65,13 @@ Hooks belong in the project, not in a global plugin. This keeps quality enforcem
 
 ### Prerequisites
 
-Install [ahpx](https://github.com/nicholasgriffintn/ahpx), the Agent Host Protocol CLI for dispatching agents:
+Install [ahpx](https://github.com/TylerLeonhardt/ahpx), the Agent Host Protocol CLI for dispatching agents:
 
 ```bash
-npm install -g ahpx
+npm install -g @tylerl0706/ahpx
 ```
 
-You'll also need at least one AHP server running. ahpx discovers servers from `~/.ahpx/connections.json`. Run `ahpx status` to check available servers.
+You'll also need at least one AHP server running. Configure servers with `ahpx server add`. Run `ahpx server status` to check available servers.
 
 ### Install as a Claude Code Plugin (recommended)
 
@@ -122,16 +122,16 @@ George acts as your CTO. When you give him a complex task, he uses the dispatch 
 
 ```bash
 # George dispatches to an AHP server
-ahpx exec -s <session-name> --cwd <project-dir> "<culture + task prompt>"
+ahpx prompt -n <session-name> --cwd <project-dir> "<culture + task prompt>"
 
 # Or target a specific server in your fleet
-ahpx exec -s <session-name> --server <server-name> --cwd <project-dir> "<culture + task prompt>"
+ahpx prompt -n <session-name> -s <server-name> --cwd <project-dir> "<culture + task prompt>"
 ```
 
 **Example:**
 
 ```bash
-ahpx exec -s add-auth --cwd ./my-project \
+ahpx prompt -n add-auth --cwd ./my-project \
   "You are a Team Lead. Our motto is **quality over everything.** ...
 
 George (the CTO) has given you this direction:

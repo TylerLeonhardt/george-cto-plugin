@@ -17,11 +17,11 @@ Before dispatching, ensure the following are available:
 
 - **ahpx** must be installed — this is the Agent Host Protocol CLI for dispatching agents to AHP servers:
   ```bash
-  npm install -g ahpx
+  npm install -g @tylerl0706/ahpx
   ```
-  See [ahpx documentation](https://github.com/nicholasgriffintn/ahpx) for setup details.
+  See [ahpx documentation](https://github.com/TylerLeonhardt/ahpx) for setup details.
 
-- **At least one AHP server** must be running and discoverable. ahpx discovers servers from `~/.ahpx/connections.json`. Run `ahpx status` to check available servers.
+- **At least one AHP server** must be running and discoverable. Configure servers with `ahpx server add`. Run `ahpx server status` to check available servers.
 
 ## When to Dispatch a Team Lead
 
@@ -39,16 +39,16 @@ Don't dispatch a Team Lead for:
 
 ## How to Dispatch
 
-The dispatch pattern uses `ahpx exec` to create a session on an AHP server with the Team Lead culture injected into the prompt:
+The dispatch pattern uses `ahpx prompt` to create a named session on an AHP server with the Team Lead culture injected into the prompt:
 
 ```bash
-ahpx exec -s <session-name> --cwd <project-dir> "<culture-prompt + task>"
+ahpx prompt -n <session-name> --cwd <project-dir> "<culture-prompt + task>"
 ```
 
 **Parameters:**
-- `-s <session-name>` — a descriptive session name for observability (e.g., `fix-auth-bug`, `add-user-api`)
+- `-n <session-name>` — a descriptive session name for observability (e.g., `fix-auth-bug`, `add-user-api`)
 - `--cwd <project-dir>` — the project directory to work in. **REQUIRED when targeting remote servers** — the agent needs to know where to operate.
-- `--server <server-name>` — target a specific AHP server in your multi-host fleet. Omit to let ahpx auto-select.
+- `-s, --server <server-name>` — target a specific AHP server in your multi-host fleet. Omit to let ahpx auto-select.
 - `"<prompt>"` — the combined culture + task prompt
 
 ### Building the Dispatch Prompt
@@ -72,7 +72,7 @@ George (the CTO) has given you this direction:
 **Step 3:** Dispatch with the combined prompt:
 
 ```bash
-ahpx exec -s <session-name> --cwd <project-dir> "<combined prompt>"
+ahpx prompt -n <session-name> --cwd <project-dir> "<combined prompt>"
 ```
 
 ### Using the dispatch script
@@ -89,14 +89,14 @@ This automatically reads the Team Lead culture, verifies ahpx is installed, and 
 
 Dispatch to the default server:
 ```bash
-ahpx exec -s add-webhook-support --cwd /path/to/my-api \
+ahpx prompt -n add-webhook-support --cwd /path/to/my-api \
   "<full culture> ... George (the CTO) has given you this direction:
 Add webhook support for order events. Create POST /webhooks endpoint..."
 ```
 
 Dispatch to a specific server in your fleet:
 ```bash
-ahpx exec -s fix-auth-bug --server dev-server-2 --cwd /path/to/my-api \
+ahpx prompt -n fix-auth-bug -s dev-server-2 --cwd /path/to/my-api \
   "<full culture> ... George (the CTO) has given you this direction:
 Fix the authentication bug where JWT tokens aren't being refreshed..."
 ```
@@ -111,10 +111,10 @@ When dispatching to remote AHP servers, you may not know the exact filesystem pa
 
 ```bash
 # Browse the filesystem on a specific server
-ahpx browse --server <server-name>
+ahpx browse -s <server-name>
 
 # Browse a specific path
-ahpx browse --server <server-name> /home/projects/
+ahpx browse -s <server-name> /home/projects/
 ```
 
 This is especially useful when managing a multi-host fleet where projects live on different machines.
@@ -123,7 +123,7 @@ This is especially useful when managing a multi-host fleet where projects live o
 
 - **Never truncate the Team Lead culture.** Agents will try to summarize it to save tokens — include ALL of `references/team-lead-culture.md` in the dispatch prompt. Truncated culture produces agents that skip quality gates.
 - **`--cwd` is REQUIRED for remote servers.** Without it, the agent won't know where to operate. Always specify the project directory when dispatching to remote AHP servers.
-- **Verify ahpx is installed before first dispatch.** Run `ahpx --version`. If it fails, install with `npm install -g ahpx`. A missing ahpx produces cryptic "command not found" errors.
+- **Verify ahpx is installed before first dispatch.** Run `ahpx --version`. If it fails, install with `npm install -g @tylerl0706/ahpx`. A missing ahpx produces cryptic "command not found" errors.
 - **Don't dispatch for trivial tasks.** Single-file edits, quick lookups, simple questions — handle these yourself. Team Leads will over-engineer simple tasks because the culture tells them to invest in expertise and create PRs.
 - **Session names must be unique.** If you reuse a session name, ahpx may resume an old session instead of starting fresh. Use descriptive, task-specific names like `fix-auth-bug` or `add-dark-mode`.
 
@@ -133,13 +133,13 @@ ahpx provides session management for observability into dispatched agents:
 
 ```bash
 # List all sessions
-ahpx sessions list
+ahpx session list
 
-# Check the status of a specific session
-ahpx sessions status -s <session-name>
+# Check the details of a specific session
+ahpx session show -n <session-name>
 
 # View the history of what happened in a session
-ahpx sessions history <session-name>
+ahpx session history -n <session-name>
 ```
 
 Use descriptive session names (`fix-auth-bug`, `add-webhook-support`, `refactor-payments`) so you can easily identify what each dispatched Team Lead is working on.

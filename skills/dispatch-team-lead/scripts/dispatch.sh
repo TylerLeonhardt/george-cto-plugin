@@ -31,7 +31,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CULTURE_FILE="${SCRIPT_DIR}/../references/team-lead-culture.md"
 
 if ! command -v ahpx &>/dev/null; then
-  echo "Error: ahpx is not installed. Run: npm install -g ahpx" >&2
+  echo "Error: ahpx is not installed. Run: npm install -g @tylerl0706/ahpx" >&2
   exit 1
 fi
 
@@ -50,4 +50,4 @@ George (the CTO) has given you this direction:
 
 ${TASK}"
 
-ahpx exec -s "$SESSION" --cwd "$PROJECT_DIR" "${SERVER_ARGS[@]}" "$PROMPT"
+ahpx prompt -n "$SESSION" --cwd "$PROJECT_DIR" "${SERVER_ARGS[@]}" "$PROMPT"
