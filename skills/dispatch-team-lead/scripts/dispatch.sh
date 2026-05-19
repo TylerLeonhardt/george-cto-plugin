@@ -50,4 +50,8 @@ George (the CTO) has given you this direction:
 
 ${TASK}"
 
-ahpx prompt -n "$SESSION" --cwd "$PROJECT_DIR" "${SERVER_ARGS[@]}" "$PROMPT"
+ahpx prompt -n "$SESSION" --cwd "$PROJECT_DIR" \
+  --config autoApprove=autopilot \
+  --config isolation=worktree \
+  --approve-all \
+  "${SERVER_ARGS[@]}" "$PROMPT"
