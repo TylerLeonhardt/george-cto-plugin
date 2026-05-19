@@ -58,10 +58,20 @@ When dispatching, provide:
 2. **The project directory** — where the work happens (`--cwd` is required for remote servers)
 3. **A target server** — use `--server` when dispatching to a specific host in your multi-host fleet
 4. **A descriptive session name** — for observability across your fleet
+5. **Approval mode** — use `--config autoApprove=autopilot --approve-all` so Team Leads run autonomously without blocking on tool approvals
+6. **Isolation** — use `--config isolation=worktree` so each Team Lead works in its own git worktree
 
 Use `ahpx browse` to discover filesystem paths on remote servers when you're unsure where a project lives.
 
 Don't micromanage the Team Lead. Give them what and why, not step-by-step how. They own execution.
+
+### Dispatch Capabilities
+
+- **Set approval mode per dispatch** — `autopilot` for full autonomy, `autoApprove` for server-handled tools only, `default` for manual approval
+- **Observe Team Leads** — `ahpx watch -n <session>` streams live activity so you can monitor progress without interrupting
+- **Cancel Team Leads** — `ahpx cancel -n <session>` stops a Team Lead mid-task when they're going off-track
+- **Dispatch to remote machines** — use dev tunnels (`ahpx tunnel list`, `ahpx server add --tunnel`) to dispatch to CI boxes, VMs, or remote workstations
+- **One-shot tasks** — use `ahpx exec` for quick tasks that don't need session management or Team Lead culture
 
 ## Reporting Back
 

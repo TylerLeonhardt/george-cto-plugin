@@ -42,14 +42,40 @@ Don't dispatch a Team Lead for:
 The dispatch pattern uses `ahpx prompt` to create a named session on an AHP server with the Team Lead culture injected into the prompt:
 
 ```bash
-ahpx prompt -n <session-name> --cwd <project-dir> "<culture-prompt + task>"
+# Autonomous dispatch (recommended for Team Leads)
+ahpx prompt -s <server> -n <session-name> --cwd <project-dir> \
+  --config autoApprove=autopilot \
+  --config isolation=worktree \
+  --approve-all \
+  "<culture-prompt + task>"
 ```
 
 **Parameters:**
-- `-n <session-name>` — a descriptive session name for observability (e.g., `fix-auth-bug`, `add-user-api`)
+- `-n <session-name>` — a descriptive session name for observability (e.g., `fix-auth-bug`, `add-user-api`). Use `-S <id>` to target by session ID instead.
 - `--cwd <project-dir>` — the project directory to work in. **REQUIRED when targeting remote servers** — the agent needs to know where to operate.
 - `-s, --server <server-name>` — target a specific AHP server in your multi-host fleet. Omit to let ahpx auto-select.
 - `"<prompt>"` — the combined culture + task prompt
+
+**Approval modes** (critical for autonomous Team Leads):
+- `--config autoApprove=autopilot` — server-side: auto-approve all tools without prompting
+- `--approve-all` — client-side: auto-approve any tools the server doesn't handle
+- `--approve-reads` — client-side: auto-approve reads, prompt for writes (use for sensitive repos)
+
+Without approval flags, the dispatched agent **blocks on every tool execution** waiting for manual approval — defeating the purpose of autonomous dispatch.
+
+**Isolation and execution modes:**
+- `--config isolation=worktree` — agent works in its own git worktree (recommended to avoid conflicts)
+- `--config mode=plan` — optional: agent creates a plan before executing
+
+### One-Shot Tasks with `ahpx exec`
+
+For quick, one-off tasks that don't need session management:
+
+```bash
+ahpx exec -s <server> --cwd <path> --approve-all --config autoApprove=autopilot "quick task"
+```
+
+`exec` creates a session, runs the prompt, and returns the result. No session name needed.
 
 ### Building the Dispatch Prompt
 
@@ -90,6 +116,7 @@ This automatically reads the Team Lead culture, verifies ahpx is installed, and 
 Dispatch to the default server:
 ```bash
 ahpx prompt -n add-webhook-support --cwd /path/to/my-api \
+  --config autoApprove=autopilot --config isolation=worktree --approve-all \
   "<full culture> ... George (the CTO) has given you this direction:
 Add webhook support for order events. Create POST /webhooks endpoint..."
 ```
@@ -97,6 +124,7 @@ Add webhook support for order events. Create POST /webhooks endpoint..."
 Dispatch to a specific server in your fleet:
 ```bash
 ahpx prompt -n fix-auth-bug -s dev-server-2 --cwd /path/to/my-api \
+  --config autoApprove=autopilot --approve-all \
   "<full culture> ... George (the CTO) has given you this direction:
 Fix the authentication bug where JWT tokens aren't being refreshed..."
 ```
@@ -142,7 +170,87 @@ ahpx session show -n <session-name>
 ahpx session history -n <session-name>
 ```
 
-Use descriptive session names (`fix-auth-bug`, `add-webhook-support`, `refactor-payments`) so you can easily identify what each dispatched Team Lead is working on.
+Use descriptive session names (`fix-auth-bug`, `add-webhook-support`, `refactor-payments`) so you can easily identify what each dispatched Team Lead is working on. You can also target sessions by ID with `-S <id>` instead of `-n <name>`.
+
+### Session Config
+
+View and modify session configuration at any time:
+
+```bash
+# View session config
+ahpx session config -n <session-name>
+
+# Set config mid-session
+ahpx session config set autoApprove autopilot -n <session-name>
+
+# Create a session with config upfront
+ahpx session new --cwd /path --config autoApprove=autopilot --config isolation=worktree
+```
+
+**Config keys** (for `copilotcli` server type):
+
+| Key | Values | Description |
+|-----|--------|-------------|
+| `autoApprove` | `default`, `autoApprove`, `autopilot` | Tool approval level |
+| `isolation` | `folder`, `worktree` | Workspace isolation strategy |
+| `mode` | `interactive`, `plan` | Execution mode |
+| `branch` | git branch name | Branch to work on |
+| `permissions` | `{ allow: [], deny: [] }` | Fine-grained tool permissions |
+
+## Observing Team Leads
+
+Watch and control dispatched agents in real time:
+
+```bash
+# Stream live activity from a Team Lead session
+ahpx watch -n <session-name> -s <server>
+
+# Cancel a Team Lead mid-task
+ahpx cancel -n <session-name> -s <server>
+```
+
+Use `watch` to observe progress without interrupting. Use `cancel` when a Team Lead is going off-track or the task is no longer needed.
+
+## Dev Tunnels
+
+Dispatch to remote machines using dev tunnels:
+
+```bash
+# Discover remote agent hosts
+ahpx tunnel list
+
+# Connect to a remote machine
+ahpx tunnel connect <tunnel-id>
+
+# Save as a named server
+ahpx server add remote-box --tunnel <tunnel-id>
+
+# Dispatch to remote
+ahpx prompt -s remote-box -n task-1 --cwd C:/Users/me/project \
+  --approve-all --config autoApprove=autopilot \
+  "fix the tests"
+```
+
+Tunnels let you dispatch Team Leads to machines you can't reach directly — CI boxes, dev VMs, or remote workstations.
+
+## Authentication
+
+Authentication is automatic. ahpx resolves tokens in this order:
+
+1. `AHPX_TOKEN` env var
+2. `GITHUB_TOKEN` env var
+3. `GH_TOKEN` env var
+4. `gh auth token` CLI output
+5. Interactive prompt (for server-initiated auth challenges)
+
+For tunnel discovery, `GITHUB_TOKEN` or `gh auth token` is required.
+
+## Workspace Customizations
+
+ahpx automatically discovers `.github/agents/*.md` and `.github/skills/*/SKILL.md` in the workspace and loads them into agent sessions via reverse-RPC file serving. This means project-specific skills and agents are automatically available to dispatched Team Leads without manual prompt injection.
+
+- `--no-customizations` — skip loading workspace customizations
+- `ahpx session customization list` — show what's loaded in a session
 
 ## Writing Good Dispatch Prompts
 
